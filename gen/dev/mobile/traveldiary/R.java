@@ -2034,13 +2034,13 @@ containing a value of this type.
         public static final int action_bar_subtitle=0x7f080032;
         public static final int action_bar_title=0x7f080031;
         public static final int action_context_bar=0x7f080045;
-        public static final int action_example=0x7f080056;
+        public static final int action_example=0x7f080059;
         public static final int action_menu_divider=0x7f08002d;
         public static final int action_menu_presenter=0x7f08002e;
         public static final int action_mode_bar=0x7f080041;
         public static final int action_mode_bar_stub=0x7f080040;
         public static final int action_mode_close_button=0x7f080033;
-        public static final int action_settings=0x7f080055;
+        public static final int action_settings=0x7f080058;
         public static final int activity_chooser_view_content=0x7f080034;
         public static final int always=0x7f08001e;
         public static final int beginning=0x7f080023;
@@ -2081,12 +2081,15 @@ containing a value of this type.
         public static final int never=0x7f08001c;
         public static final int none=0x7f080000;
         public static final int normal=0x7f080001;
+        public static final int place_desc_edit=0x7f080056;
+        public static final int place_name_edit=0x7f080055;
         public static final int production=0x7f080007;
         public static final int progress_circular=0x7f08002f;
         public static final int progress_horizontal=0x7f080030;
         public static final int radio=0x7f08003e;
         public static final int sandbox=0x7f080008;
         public static final int satellite=0x7f080002;
+        public static final int save_button=0x7f080057;
         public static final int search_badge=0x7f080048;
         public static final int search_bar=0x7f080047;
         public static final int search_button=0x7f080049;
@@ -2165,9 +2168,12 @@ containing a value of this type.
         public static final int abc_search_view=0x7f030015;
         public static final int abc_simple_dropdown_hint=0x7f030016;
         public static final int activity_main=0x7f030017;
-        public static final int fragment_navigation_drawer=0x7f030018;
-        public static final int map_fragment_view=0x7f030019;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001a;
+        public static final int diary_edit_entry_fragment_view=0x7f030018;
+        public static final int diary_fragment_view=0x7f030019;
+        public static final int fragment_navigation_drawer=0x7f03001a;
+        public static final int gallery_fragment_view=0x7f03001b;
+        public static final int map_fragment_view=0x7f03001c;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
     }
     public static final class menu {
         public static final int global=0x7f0c0000;
@@ -2230,6 +2236,7 @@ containing a value of this type.
         public static final int accept=0x7f060002;
         public static final int action_example=0x7f060038;
         public static final int action_settings=0x7f060039;
+        public static final int add_loc_dialog=0x7f06003c;
         public static final int app_name=0x7f060032;
         /**   Text for notification shown when the Android Wear apps needs to be updated. Only shown on the wearable. [CHAR LIMIT=NONE] 
          */
@@ -2335,6 +2342,10 @@ containing a value of this type.
         public static final int decline=0x7f060003;
         public static final int navigation_drawer_close=0x7f060037;
         public static final int navigation_drawer_open=0x7f060036;
+        public static final int no=0x7f06003b;
+        public static final int place_description=0x7f06003e;
+        public static final int place_name=0x7f06003d;
+        public static final int save_changes=0x7f06003f;
         public static final int store_picture_message=0x7f060001;
         public static final int store_picture_title=0x7f060000;
         public static final int title_section1=0x7f060033;
@@ -2344,6 +2355,7 @@ containing a value of this type.
          available or up-to-date 
          */
         public static final int wallet_buy_button_place_holder=0x7f060022;
+        public static final int yes=0x7f06003a;
     }
     public static final class style {
         /** 

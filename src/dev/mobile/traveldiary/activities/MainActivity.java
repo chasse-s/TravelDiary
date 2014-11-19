@@ -1,25 +1,25 @@
 package dev.mobile.traveldiary.activities;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import dev.mobile.traveldiary.R;
+import dev.mobile.traveldiary.fragments.DiaryEditEntryFragment;
+import dev.mobile.traveldiary.fragments.DiaryFragment;
+import dev.mobile.traveldiary.fragments.GalleryFragment;
 import dev.mobile.traveldiary.fragments.MyMapFragment;
+import dev.mobile.traveldiary.fragments.MyMapFragment.MyMapFragmentListener;
 import dev.mobile.traveldiary.fragments.NavigationDrawerFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
 
 public class MainActivity extends ActionBarActivity
-implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentListener {
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -30,7 +30,7 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 	 * Used to store the last screen title. For use in {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,18 +61,27 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 	}
 
 	private void displayMap() {
-		SupportMapFragment mFRaFragment = new MyMapFragment();
-		FragmentTransaction mTransaction = this.getSupportFragmentManager().beginTransaction();
-        mTransaction.replace(R.id.container, mFRaFragment);
-        mTransaction.commit();
-        MapsInitializer.initialize(this);
-        Log.e(" ","");
+		MyMapFragment mapFragment = new MyMapFragment();
+		mapFragment.setListener(this);
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		transaction.add(R.id.container, mapFragment);
+		transaction.commit();
 	}
-	
-	private void displayDiary() {}
-	
-	private void displayGallery() {}
-	
+
+	private void displayDiary() {
+		DiaryFragment diaryFragment = new DiaryFragment();
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		transaction.add(R.id.container, diaryFragment);
+		transaction.commit();
+	}
+
+	private void displayGallery() {
+		GalleryFragment galleryFragment = new GalleryFragment();
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		transaction.add(R.id.container, galleryFragment);
+		transaction.commit();
+	}
+
 	public void onSectionAttached(int number) {
 		switch (number) {
 		case 1:
@@ -119,36 +128,11 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 		return super.onOptionsItemSelected(item);
 	}
 
-/*
-	public static class PlaceholderFragment extends Fragment {
-	
-		private static final String ARG_SECTION_NUMBER = "section_number";
-
-		public static PlaceholderFragment newInstance(int sectionNumber) {
-			PlaceholderFragment fragment = new PlaceholderFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			return fragment;
-		}
-
-		public PlaceholderFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-			return rootView;
-		}
-
-		@Override
-		public void onAttach(Activity activity) {
-			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(
-					getArguments().getInt(ARG_SECTION_NUMBER));
-		}
+	@Override
+	public void onNewLocation(LatLng location) {
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		transaction.add(R.id.container, DiaryEditEntryFragment.newInstance(location));
+		transaction.commit();
 	}
-	*/
 
 }
