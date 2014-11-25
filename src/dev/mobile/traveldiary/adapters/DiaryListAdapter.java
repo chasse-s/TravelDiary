@@ -2,12 +2,14 @@ package dev.mobile.traveldiary.adapters;
 
 import java.util.List;
 
+import dev.mobile.traveldiary.R;
 import dev.mobile.traveldiary.models.Place;
-import dev.mobile.traveldiary.utils.MyDatabaseHelper;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 public class DiaryListAdapter extends BaseAdapter {
 
@@ -15,10 +17,9 @@ public class DiaryListAdapter extends BaseAdapter {
 	
 	private List<Place> places;
 	
-	public DiaryListAdapter(Context context) {
+	public DiaryListAdapter(Context context, List<Place> places) {
 		this.context = context;
-		MyDatabaseHelper dbHelper = new MyDatabaseHelper(context);
-		this.places = dbHelper.getAllPlaces();
+		this.places = places;
 	}
 	
 	@Override
@@ -38,7 +39,15 @@ public class DiaryListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		return null;
+		Place place = this.places.get(position);
+		if (convertView == null) {
+			LayoutInflater inflater = (LayoutInflater)context.getSystemService
+					(Context.LAYOUT_INFLATER_SERVICE);
+			convertView = inflater.inflate(R.layout.diary_list_item, null);
+		}
+		((TextView)convertView.findViewById(R.id.item_place_name)).setText(place.getName());
+		((TextView)convertView.findViewById(R.id.item_place_desc)).setText(place.getDescription());
+		return (convertView);
 	}
 
 }

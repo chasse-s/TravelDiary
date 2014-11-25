@@ -1,6 +1,5 @@
 package dev.mobile.traveldiary.fragments;
 
-import java.util.List;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -10,7 +9,6 @@ import dev.mobile.traveldiary.utils.MyDatabaseHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +17,15 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class DiaryEditEntryFragment extends Fragment {
+
+	public interface DiaryEditEntryFragmentListener {
+		public void onEntryCreated();
+		public void onEntryUpdated(Place place);
+	}
+
+	private DiaryEditEntryFragmentListener listener;
+
+	private Place place;
 
 	private double latitude;
 	private double longitude;
@@ -41,6 +48,14 @@ public class DiaryEditEntryFragment extends Fragment {
 
 	public DiaryEditEntryFragment() {}
 
+	public void setPlace(Place place) {
+		this.place = place;
+	}
+
+	public void setListener(DiaryEditEntryFragmentListener listener) {
+		this.listener = listener;
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -50,12 +65,19 @@ public class DiaryEditEntryFragment extends Fragment {
 		this.longitude = args.getDouble(ARG_LOC_LONG);
 		this.placeNameEdit = (EditText)rootView.findViewById(R.id.place_name_edit);
 		this.placeDescEdit = (EditText)rootView.findViewById(R.id.place_desc_edit);
+		if (this.place != null) {
+			this.placeNameEdit.setText(place.getName());
+			this.placeDescEdit.setText(place.getDescription());
+		}
 		this.saveButton = (Button) rootView.findViewById(R.id.save_button);
 		this.saveButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.w("", "on Click");
-				addDiaryEntry();
+				if (place != null) {
+					editDiaryEntry();
+				} else {
+					addDiaryEntry();
+				}
 			}
 		});
 		return (rootView);
@@ -67,16 +89,22 @@ public class DiaryEditEntryFragment extends Fragment {
 		place.setDescription(this.placeDescEdit.getText().toString());
 		place.setLatitude(this.latitude);
 		place.setLongitude(this.longitude);
-		Log.w("", "Create new entry, place = " + place.toString());
 		MyDatabaseHelper dbHelper = new MyDatabaseHelper(this.getActivity());
 		dbHelper.addPlace(place);
-		List<Place> places = dbHelper.getAllPlaces();
-		Log.w("", "places = " + places.size());
-		closeFragment();
+		if (this.listener != null) {
+			this.listener.onEntryCreated();
+		}
 	}
-	
-	private void closeFragment() {
-		getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+
+	public void editDiaryEntry() {
+		this.place.setName(this.placeNameEdit.getText().toString());
+		this.place.setDescription(this.placeDescEdit.getText().toString());
+		MyDatabaseHelper dbHelper = new MyDatabaseHelper(this.getActivity());
+		dbHelper.updatePlace(place);
+		if (this.listener != null) {
+			this.listener.onEntryUpdated(place);
+		}
 	}
+
 
 }

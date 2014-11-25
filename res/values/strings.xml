@@ -15,5 +15,5 @@
     <string name="place_name">Place\'s name</string>
     <string name="place_description">Place\'s description</string>
     <string name="save_changes">Save changes</string>
-
+    <string name="edit">Edit informations</string>
 </resources>

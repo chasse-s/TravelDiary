@@ -10,10 +10,12 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import dev.mobile.traveldiary.R;
@@ -26,17 +28,18 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 
 public class MyMapFragment extends SupportMapFragment implements GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener,
 LocationListener {
 
 	public interface MyMapFragmentListener {
-		public void onNewLocation(LatLng location);
+		public void onNewPlace(LatLng location);
+		public void onPlaceSelected(Place place);
 	}
 
 	private MyMapFragmentListener listener;
@@ -56,6 +59,7 @@ LocationListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.w("MyMapFragment.java", "onCreate()");
 		this.locationRequest = LocationRequest.create();
 		this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		this.clientLocation = new LocationClient(this.getActivity().getApplicationContext(), this, this);
@@ -65,17 +69,20 @@ LocationListener {
 	@Override
 	public View onCreateView(LayoutInflater mInflater, ViewGroup viewGroup,
 			Bundle savedInstanceState) {
+		Log.w("MyMapFragment.java", "onCreateView()");
 		return super.onCreateView(mInflater, viewGroup, savedInstanceState);
 	}
 
 
 	@Override
 	public void onInflate(Activity activity, AttributeSet attr, Bundle savedInstanceState) {
+		Log.w("MyMapFragment.java", "onInflate()");
 		super.onInflate(activity, attr, savedInstanceState);
 	}
 
 	@Override
 	public void onResume() {
+		Log.w("MyMapFragment.java", "onResume()");
 		super.onResume();
 	}
 
@@ -83,12 +90,22 @@ LocationListener {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		MapsInitializer.initialize(this.getActivity());
+		Log.w("MyMapFragment.java", "onActivityCreated()");
 		this.googleMap = getMap();
 		this.googleMap.setMyLocationEnabled(true);
-		MapsInitializer.initialize(this.getActivity());
-
-		this.addUserMarkers();
-	
+		this.googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+			@Override
+			public void onInfoWindowClick(Marker marker) {
+				String placeName = marker.getTitle();
+				MyDatabaseHelper dbHelper = new MyDatabaseHelper(getActivity());
+				Place place = dbHelper.getPlaceByName(placeName);
+				if (listener != null && place != null) {
+					listener.onPlaceSelected(place);
+				}
+			}
+		});
+		this.setUserMarkers();
 		this.googleMap.setOnMapClickListener(new OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng point) {
@@ -96,14 +113,16 @@ LocationListener {
 			}
 		});
 	}
-	
-	private void addUserMarkers() {
+
+	public void setUserMarkers() {
+		this.googleMap.clear();
+		Log.w("MyMapFragment.java", "setUserMarkers()");
 		MyDatabaseHelper dbHelper = new MyDatabaseHelper(this.getActivity());
 		List<Place> places = dbHelper.getAllPlaces();
 		for (Place place : places) {
 			this.googleMap.addMarker(new MarkerOptions()
 			.position(new LatLng(place.getLatitude(), place.getLongitude()))
-			.title(place.getName())).showInfoWindow();
+			.title(place.getName()));
 		}
 	}
 
@@ -130,7 +149,7 @@ LocationListener {
 
 	private void createNewDiaryEntry(LatLng location) {
 		if (this.listener != null) {
-			this.listener.onNewLocation(location);
+			this.listener.onNewPlace(location);
 		}
 	}
 

@@ -1,25 +1,36 @@
 package dev.mobile.traveldiary.activities;
 
+import java.util.List;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import dev.mobile.traveldiary.R;
 import dev.mobile.traveldiary.fragments.DiaryEditEntryFragment;
+import dev.mobile.traveldiary.fragments.DiaryEntryFragment;
+import dev.mobile.traveldiary.fragments.DiaryEntryFragment.DiaryEntryFragmentListener;
 import dev.mobile.traveldiary.fragments.DiaryFragment;
+import dev.mobile.traveldiary.fragments.DiaryEditEntryFragment.DiaryEditEntryFragmentListener;
+import dev.mobile.traveldiary.fragments.DiaryFragment.DiaryFragmentListener;
 import dev.mobile.traveldiary.fragments.GalleryFragment;
 import dev.mobile.traveldiary.fragments.MyMapFragment;
 import dev.mobile.traveldiary.fragments.MyMapFragment.MyMapFragmentListener;
 import dev.mobile.traveldiary.fragments.NavigationDrawerFragment;
+import dev.mobile.traveldiary.models.Place;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
 
 public class MainActivity extends ActionBarActivity
-implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentListener {
+implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentListener, DiaryFragmentListener,
+DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -30,6 +41,8 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentList
 	 * Used to store the last screen title. For use in {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
+
+	private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +77,13 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentList
 		MyMapFragment mapFragment = new MyMapFragment();
 		mapFragment.setListener(this);
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-		transaction.add(R.id.container, mapFragment);
+		transaction.add(R.id.container, mapFragment, "MAP");
 		transaction.commit();
 	}
 
 	private void displayDiary() {
 		DiaryFragment diaryFragment = new DiaryFragment();
+		diaryFragment.setListener(this);
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 		transaction.add(R.id.container, diaryFragment);
 		transaction.commit();
@@ -79,6 +93,16 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentList
 		GalleryFragment galleryFragment = new GalleryFragment();
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 		transaction.add(R.id.container, galleryFragment);
+		transaction.commit();
+	}
+
+	private void displayDiaryEntry(Place place) {
+		DiaryEntryFragment entryFragment = new DiaryEntryFragment();
+		entryFragment.setPlace(place);
+		entryFragment.setListener(this);
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		transaction.add(R.id.container, entryFragment);
+		transaction.addToBackStack(null);
 		transaction.commit();
 	}
 
@@ -101,7 +125,6 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentList
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(mTitle);
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -129,9 +152,66 @@ implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyMapFragmentList
 	}
 
 	@Override
-	public void onNewLocation(LatLng location) {
+	public void onNewPlace(LatLng location) {
+		DiaryEditEntryFragment editEntryFragment = DiaryEditEntryFragment.newInstance(location);
+		editEntryFragment.setListener(this);
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-		transaction.add(R.id.container, DiaryEditEntryFragment.newInstance(location));
+		transaction.add(R.id.container, editEntryFragment);
+		transaction.addToBackStack(null);
+		transaction.commit();
+	}
+
+	@Override
+	public void onPlaceEntrySelected(Place place) {
+		displayDiaryEntry(place);
+	}
+
+	@Override
+	public void onPlaceSelected(Place place) {
+		displayDiaryEntry(place);
+	}
+
+	@Override
+	public void onEntryCreated() {
+		Log.w("MainActivity.java", "onEntryCreated()");
+		getSupportFragmentManager().popBackStack();
+		Fragment myMapFragment = getMapFragment();
+		if (myMapFragment != null) {
+			((MyMapFragment) myMapFragment).setUserMarkers();
+		}
+	}
+
+	@Override
+	public void onEntryUpdated(Place place) {
+		Log.w("MainActivity.java", "onEntryUpdated()");
+		Fragment myMapFragment = getMapFragment();
+		if (myMapFragment != null) {
+			((MyMapFragment) myMapFragment).setUserMarkers();
+		}
+		getSupportFragmentManager().popBackStack();
+		getSupportFragmentManager().popBackStack();
+		displayDiaryEntry(place);
+	}
+
+	private Fragment getMapFragment() {
+		FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
+		List<Fragment> fragments = fragmentManager.getFragments();
+		for (Fragment fragment : fragments){
+			if(fragment != null && fragment instanceof MyMapFragment)
+				return fragment;
+		}
+		return null;
+	}
+
+	@Override
+	public void onEntryEditButtonClicked(Place place) {
+		LatLng loc = new LatLng(place.getLatitude(), place.getLongitude());
+		DiaryEditEntryFragment editEntryFragment = DiaryEditEntryFragment.newInstance(loc);
+		editEntryFragment.setListener(this);
+		editEntryFragment.setPlace(place);
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		transaction.add(R.id.container, editEntryFragment);
+		transaction.addToBackStack(null);
 		transaction.commit();
 	}
 

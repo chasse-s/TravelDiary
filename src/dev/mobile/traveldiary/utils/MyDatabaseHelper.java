@@ -23,7 +23,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 	private static final String KEY_DESC = "description";
 	private static final String KEY_LONG = "longitude";
 	private static final String KEY_LAT = "latitude";
-	
+
 	private static final String[] COLUMNS = {KEY_ID,KEY_NAME,KEY_DESC, KEY_LONG, KEY_LAT};
 
 	public MyDatabaseHelper(Context context) {
@@ -60,10 +60,11 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 				null,
 				values);
 
-		db.close(); 
+		db.close();
+		Log.w("MyDatabaseHelper.java", "place added.");
 	}
 
-	public Place getPlace(int id){
+	public Place getPlace(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
 		Cursor cursor = 
@@ -85,6 +86,30 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		place.setLongitude(cursor.getDouble(3));
 		place.setLatitude(cursor.getDouble(4));
 		Log.d("getPlace("+id+")", place.toString());
+		return place;
+	}
+
+	public Place getPlaceByName(String name) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cursor = 
+				db.query(TABLE_PLACE,
+						COLUMNS,
+						" "+ KEY_NAME +" = ?",
+						new String[] { name },
+						null,
+						null,
+						null,
+						null);
+
+		if (cursor != null)
+			cursor.moveToFirst();
+		Place place = new Place();
+		place.set_id(Integer.parseInt(cursor.getString(0)));
+		place.setName(cursor.getString(1));
+		place.setDescription(cursor.getString(2));
+		place.setLongitude(cursor.getDouble(3));
+		place.setLatitude(cursor.getDouble(4));
+		Log.d("getPlace("+name+")", place.toString());
 		return place;
 	}
 
