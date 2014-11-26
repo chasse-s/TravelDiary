@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/edit_text_shape"
+            android:paddingLeft="5dp"
             android:textColorHint="@color/light_grey" />
 
         <TextView
@@ -40,6 +41,7 @@
             android:background="@drawable/edit_text_shape"
             android:gravity="top"
             android:minLines="8"
+            android:paddingLeft="5dp"
             android:textColorHint="@color/light_grey" />
 
         <TextView
@@ -73,12 +75,13 @@
                 android:layout_height="100dp"
                 android:layout_weight="3" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/take_photo_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/take_photo" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:scaleType="centerInside"
+                android:src="@drawable/camera" />
         </LinearLayout>
     </LinearLayout>
 

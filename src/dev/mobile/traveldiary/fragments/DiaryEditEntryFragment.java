@@ -30,6 +30,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class DiaryEditEntryFragment extends Fragment {
@@ -51,7 +52,7 @@ public class DiaryEditEntryFragment extends Fragment {
 	private EditText placeNameEdit;
 	private EditText placeDescEdit;
 	private Button saveButton;
-	private Button takePhotoButton;
+	private ImageButton takePhotoButton;
 	private ImageView imageView1;
 	private ImageView imageView2;
 	private ImageView imageView3;
@@ -142,7 +143,7 @@ public class DiaryEditEntryFragment extends Fragment {
 		this.imageView1 = (ImageView)rootView.findViewById(R.id.gallery_image_1);
 		this.imageView2 = (ImageView)rootView.findViewById(R.id.gallery_image_2);
 		this.imageView3 = (ImageView)rootView.findViewById(R.id.gallery_image_3);
-		this.takePhotoButton = (Button) rootView.findViewById(R.id.take_photo_button);
+		this.takePhotoButton = (ImageButton) rootView.findViewById(R.id.take_photo_button);
 		this.takePhotoButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

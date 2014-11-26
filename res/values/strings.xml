@@ -18,5 +18,6 @@
     <string name="edit">Edit informations</string>
     <string name="gallery">Gallery</string>
     <string name="take_photo">Take a photo</string>
+    <string name="my_diary">My diary</string>
 
 </resources>
