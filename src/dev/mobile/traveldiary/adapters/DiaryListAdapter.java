@@ -47,6 +47,7 @@ public class DiaryListAdapter extends BaseAdapter {
 		}
 		((TextView)convertView.findViewById(R.id.item_place_name)).setText(place.getName());
 		((TextView)convertView.findViewById(R.id.item_place_desc)).setText(place.getDescription());
+		((TextView)convertView.findViewById(R.id.item_date)).setText(place.getDate());
 		return (convertView);
 	}
 

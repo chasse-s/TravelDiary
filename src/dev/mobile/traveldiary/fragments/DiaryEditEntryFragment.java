@@ -2,7 +2,10 @@ package dev.mobile.traveldiary.fragments;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +18,7 @@ import dev.mobile.traveldiary.models.Picture;
 import dev.mobile.traveldiary.models.Place;
 import dev.mobile.traveldiary.utils.MyDatabaseHelper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -41,6 +45,7 @@ public class DiaryEditEntryFragment extends Fragment {
 	}
 
 	static final int REQUEST_IMAGE_CAPTURE = 1;
+	static final int REQUEST_IMAGE_IMPORT = 2;
 
 	private DiaryEditEntryFragmentListener listener;
 
@@ -53,12 +58,13 @@ public class DiaryEditEntryFragment extends Fragment {
 	private EditText placeDescEdit;
 	private Button saveButton;
 	private ImageButton takePhotoButton;
+	private ImageButton importPhotoButton;
 	private ImageView imageView1;
 	private ImageView imageView2;
 	private ImageView imageView3;
 
 	private int imageEmptyPos = 1;
-	
+
 	private List<Picture> picturesToAdd;
 
 	private static final String ARG_LOC_LAT = "location_latitude";
@@ -75,44 +81,61 @@ public class DiaryEditEntryFragment extends Fragment {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == getActivity().RESULT_OK) {
+		getActivity();
+		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
 			Log.w("DiaryEntryEdit.java", "onActivityResult() : result ok");
 			Bundle extras = data.getExtras();
 			Bitmap imageBitmap = (Bitmap) extras.get("data");
-			String filename = this.placeNameEdit.getText().toString() + getCurrentDateTime();
-
-			ContextWrapper cw = new ContextWrapper(this.getActivity().getApplicationContext());
-			// path to /data/data/yourapp/app_data/imageDir
-			File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-			// Create imageDir
-			File mypath = new File(directory, filename);
-			FileOutputStream fos = null;
-			try {           
-				fos = new FileOutputStream(mypath);
-				// Use the compress method on the BitMap object to write image to the OutputStream
-				imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-				fos.close();
-				Picture newPic = new Picture();
-				newPic.setPath(directory.getAbsolutePath() + "/" + filename);
-				this.picturesToAdd.add(newPic);
-				if (this.imageEmptyPos == 1) {
-					imageView1.setImageBitmap(imageBitmap);
-					this.imageEmptyPos = 2;
-				} else if (this.imageEmptyPos == 2) {
-					imageView2.setImageBitmap(imageBitmap);
-					this.imageEmptyPos = 3;
-				} else if (this.imageEmptyPos == 3) {
-					imageView3.setImageBitmap(imageBitmap);
-					this.imageEmptyPos = 0;
+			addNewPicture(imageBitmap);
+		} else {
+			getActivity();
+			if (requestCode == REQUEST_IMAGE_IMPORT && resultCode == Activity.RESULT_OK) {
+				  InputStream stream;
+				try {
+					stream = this.getActivity().getContentResolver().openInputStream(data.getData());
+					BitmapFactory.Options options=new BitmapFactory.Options();
+					options.inSampleSize = 8;
+					Bitmap bitmap = BitmapFactory.decodeStream(stream, null, options);
+					stream.close();
+					addNewPicture(bitmap);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				
-				
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 	}
 
+	private void addNewPicture(Bitmap imageBitmap) {
+		String filename = this.placeNameEdit.getText().toString() + getCurrentDateTime();
+		ContextWrapper cw = new ContextWrapper(this.getActivity().getApplicationContext());
+		File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+		// Create imageDir
+		File mypath = new File(directory, filename);
+		FileOutputStream fos = null;
+		try {           
+			fos = new FileOutputStream(mypath);
+			imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			fos.close();
+			Picture newPic = new Picture();
+			newPic.setPath(directory.getAbsolutePath() + "/" + filename);
+			this.picturesToAdd.add(newPic);
+			if (this.imageEmptyPos == 1) {
+				imageView1.setImageBitmap(imageBitmap);
+				this.imageEmptyPos = 2;
+			} else if (this.imageEmptyPos == 2) {
+				imageView2.setImageBitmap(imageBitmap);
+				this.imageEmptyPos = 3;
+			} else if (this.imageEmptyPos == 3) {
+				imageView3.setImageBitmap(imageBitmap);
+				this.imageEmptyPos = 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private String getCurrentDateTime() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		String currentDateandTime = sdf.format(new Date());
@@ -144,6 +167,7 @@ public class DiaryEditEntryFragment extends Fragment {
 		this.imageView2 = (ImageView)rootView.findViewById(R.id.gallery_image_2);
 		this.imageView3 = (ImageView)rootView.findViewById(R.id.gallery_image_3);
 		this.takePhotoButton = (ImageButton) rootView.findViewById(R.id.take_photo_button);
+		this.importPhotoButton = (ImageButton) rootView.findViewById(R.id.import_photo_button);
 		this.takePhotoButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -151,6 +175,16 @@ public class DiaryEditEntryFragment extends Fragment {
 				if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
 					startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
 				}
+			}
+		});
+		this.importPhotoButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setType("image/*");
+				intent.setAction(Intent.ACTION_GET_CONTENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				startActivityForResult(intent, REQUEST_IMAGE_IMPORT);
 			}
 		});
 		if (this.place != null) {
@@ -177,7 +211,6 @@ public class DiaryEditEntryFragment extends Fragment {
 		List<Picture> pictures = myDbHelper.getPicturesByPlaceId(this.place.get_id());
 		List<Bitmap> bitmaps = new ArrayList<Bitmap>();
 		if (pictures != null) {
-			Log.w("DiaryEditEntryFragment.java", "loadPicture(): "+ pictures.size() + " to load.");
 			for (Picture p : pictures) {
 				File imgFile = new  File(p.getPath());
 				if (imgFile.exists()) {
@@ -206,6 +239,9 @@ public class DiaryEditEntryFragment extends Fragment {
 		place.setDescription(this.placeDescEdit.getText().toString());
 		place.setLatitude(this.latitude);
 		place.setLongitude(this.longitude);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		Date date = new Date();
+		place.setDate(sdf.format(date));
 		MyDatabaseHelper dbHelper = new MyDatabaseHelper(this.getActivity());
 		int placeId = dbHelper.addPlace(place);
 		if (this.picturesToAdd != null) {

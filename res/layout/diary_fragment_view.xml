@@ -3,14 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bgColor"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical" >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
         android:text="@string/my_diary"
-        android:textSize="18sp" />
+        android:textSize="20sp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -23,8 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:clickable="true"
-        android:focusable="true"
         android:focusableInTouchMode="true" />
 
 </LinearLayout>

@@ -42,8 +42,6 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 	 */
 	private CharSequence mTitle;
 
-	private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT";
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,7 +66,7 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 			displayDiary();
 			break;
 		case 2:
-			displayGallery();
+			displayGallery(null);
 			break;
 		}
 	}
@@ -89,10 +87,15 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 		transaction.commit();
 	}
 
-	private void displayGallery() {
+	private void displayGallery(Place place) {
 		GalleryFragment galleryFragment = new GalleryFragment();
+		if (place != null) {
+			galleryFragment.setPlace(place);
+			
+		}
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 		transaction.add(R.id.container, galleryFragment);
+		transaction.addToBackStack(null);
 		transaction.commit();
 	}
 
@@ -173,7 +176,6 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 
 	@Override
 	public void onEntryCreated() {
-		Log.w("MainActivity.java", "onEntryCreated()");
 		getSupportFragmentManager().popBackStack();
 		Fragment myMapFragment = getMapFragment();
 		if (myMapFragment != null) {
@@ -183,7 +185,6 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 
 	@Override
 	public void onEntryUpdated(Place place) {
-		Log.w("MainActivity.java", "onEntryUpdated()");
 		Fragment myMapFragment = getMapFragment();
 		if (myMapFragment != null) {
 			((MyMapFragment) myMapFragment).setUserMarkers();
@@ -213,6 +214,12 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 		transaction.add(R.id.container, editEntryFragment);
 		transaction.addToBackStack(null);
 		transaction.commit();
+	}
+
+	@Override
+	public void onGalleryButtonClicked(Place place) {
+		Log.w("MainActivity.java", "onGalleryButtonClicked()");
+		displayGallery(place);
 	}
 
 }

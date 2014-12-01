@@ -27,12 +27,12 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 	private static final String KEY_DESC = "description";
 	private static final String KEY_LONG = "longitude";
 	private static final String KEY_LAT = "latitude";
-	//private static final String KEY_CREATED_AT = "created_at";
+	private static final String KEY_CREATED_AT = "created_at";
 
 	private static final String KEY_PATH = "path";
 	private static final String KEY_PLACE_ID = "picture_id";
 
-	private static final String[] PLACE_COLUMNS = {KEY_ID,KEY_NAME,KEY_DESC, KEY_LONG, KEY_LAT};
+	private static final String[] PLACE_COLUMNS = {KEY_ID,KEY_NAME,KEY_DESC, KEY_LONG, KEY_LAT, KEY_CREATED_AT};
 	private static final String[] PICTURE_COLUMNS = {KEY_ID,KEY_PATH,KEY_PLACE_ID};
 	
 	public MyDatabaseHelper(Context context) {
@@ -46,7 +46,8 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 				KEY_NAME + " TEXT, " +
 				KEY_DESC + " TEXT, " +
 				KEY_LONG + " DOUBLE, " + 
-				KEY_LAT + " DOUBLE ) ";
+				KEY_LAT + " DOUBLE, " +
+				KEY_CREATED_AT + " ) ";
 		db.execSQL(CREATE_PLACE_TABLE);
 		String CREATE_PICTURE_TABLE = "CREATE TABLE " + TABLE_PICTURE + " ( " +
 				KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + 
@@ -77,6 +78,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		values.put(KEY_DESC, place.getDescription());
 		values.put(KEY_LONG, place.getLongitude());
 		values.put(KEY_LAT, place.getLatitude());
+		values.put(KEY_CREATED_AT, place.getDate());
 		long id = db.insert(TABLE_PLACE,
 				null,
 				values);
@@ -107,6 +109,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		place.setDescription(cursor.getString(2));
 		place.setLongitude(cursor.getDouble(3));
 		place.setLatitude(cursor.getDouble(4));
+		place.setDate(cursor.getString(5));
 		Log.d("getPlace("+id+")", place.toString());
 		return place;
 	}
@@ -131,6 +134,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		place.setDescription(cursor.getString(2));
 		place.setLongitude(cursor.getDouble(3));
 		place.setLatitude(cursor.getDouble(4));
+		place.setDate(cursor.getString(5));
 		Log.d("getPlace("+name+")", place.toString());
 		return place;
 	}
@@ -149,6 +153,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 				place.setDescription(cursor.getString(2));
 				place.setLongitude(cursor.getDouble(3));
 				place.setLatitude(cursor.getDouble(4));
+				place.setDate(cursor.getString(5));
 				places.add(place);
 			} while (cursor.moveToNext());
 		}
@@ -163,6 +168,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		values.put(KEY_DESC, place.getDescription());
 		values.put(KEY_LONG, place.getLongitude());
 		values.put(KEY_LAT, place.getLatitude());
+		values.put(KEY_CREATED_AT, place.getDate());
 		int i = db.update(TABLE_PLACE,
 				values,
 				KEY_ID+" = ?",
@@ -179,8 +185,6 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		db.close();
 		Log.d("deletePlace", place.toString());
 	}
-
-
 
 
 	// PICTURES
@@ -202,7 +206,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = 
 				db.query(TABLE_PICTURE,
-						PLACE_COLUMNS,
+						PICTURE_COLUMNS,
 						" id = ?",
 						new String[] { String.valueOf(id) },
 						null,

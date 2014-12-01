@@ -7,6 +7,7 @@ public class Place {
 	private String description;
 	private Double longitude;
 	private Double latitude;
+	private String date;
 
 	public int get_id() {
 		return _id;
@@ -46,6 +47,14 @@ public class Place {
 
 	public void setLatitude(Double latitude) {
 		this.latitude = latitude;
+	}
+	
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 	@Override

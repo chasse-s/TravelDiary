@@ -33,10 +33,8 @@ public class DiaryFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyDatabaseHelper dbHelper = new MyDatabaseHelper(this.getActivity());
 		this.places = dbHelper.getAllPlaces();
-		
 		View rootView = inflater.inflate(R.layout.diary_fragment_view, container, false);
 		ListView listview = (ListView) rootView.findViewById(R.id.diary_list_view);
-		
 		final List<Place> places = this.places;
 		listview.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> myAdapter, View myView, int position, long mylng) {
@@ -45,10 +43,8 @@ public class DiaryFragment extends Fragment {
 				}
 			}                 
 		});
-		
 		DiaryListAdapter adapter = new DiaryListAdapter(this.getActivity(), this.places);
 		listview.setAdapter(adapter);
-
 		return rootView;
 	}
 }
