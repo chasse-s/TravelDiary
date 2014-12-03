@@ -27,7 +27,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,6 +41,7 @@ public class DiaryEditEntryFragment extends Fragment {
 	public interface DiaryEditEntryFragmentListener {
 		public void onEntryCreated();
 		public void onEntryUpdated(Place place);
+		public void onEntryDeleted();
 	}
 
 	static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -57,6 +57,7 @@ public class DiaryEditEntryFragment extends Fragment {
 	private EditText placeNameEdit;
 	private EditText placeDescEdit;
 	private Button saveButton;
+	private Button deleteButton;
 	private ImageButton takePhotoButton;
 	private ImageButton importPhotoButton;
 	private ImageView imageView1;
@@ -83,14 +84,13 @@ public class DiaryEditEntryFragment extends Fragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		getActivity();
 		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-			Log.w("DiaryEntryEdit.java", "onActivityResult() : result ok");
 			Bundle extras = data.getExtras();
 			Bitmap imageBitmap = (Bitmap) extras.get("data");
 			addNewPicture(imageBitmap);
 		} else {
 			getActivity();
 			if (requestCode == REQUEST_IMAGE_IMPORT && resultCode == Activity.RESULT_OK) {
-				  InputStream stream;
+				InputStream stream;
 				try {
 					stream = this.getActivity().getContentResolver().openInputStream(data.getData());
 					BitmapFactory.Options options=new BitmapFactory.Options();
@@ -135,7 +135,7 @@ public class DiaryEditEntryFragment extends Fragment {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private String getCurrentDateTime() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		String currentDateandTime = sdf.format(new Date());
@@ -166,32 +166,26 @@ public class DiaryEditEntryFragment extends Fragment {
 		this.imageView1 = (ImageView)rootView.findViewById(R.id.gallery_image_1);
 		this.imageView2 = (ImageView)rootView.findViewById(R.id.gallery_image_2);
 		this.imageView3 = (ImageView)rootView.findViewById(R.id.gallery_image_3);
-		this.takePhotoButton = (ImageButton) rootView.findViewById(R.id.take_photo_button);
-		this.importPhotoButton = (ImageButton) rootView.findViewById(R.id.import_photo_button);
-		this.takePhotoButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-					startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-				}
-			}
-		});
-		this.importPhotoButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent();
-				intent.setType("image/*");
-				intent.setAction(Intent.ACTION_GET_CONTENT);
-				intent.addCategory(Intent.CATEGORY_OPENABLE);
-				startActivityForResult(intent, REQUEST_IMAGE_IMPORT);
-			}
-		});
 		if (this.place != null) {
 			this.placeNameEdit.setText(place.getName());
 			this.placeDescEdit.setText(place.getDescription());
 			loadPicture();
 		}
+		this.takePhotoButton = (ImageButton) rootView.findViewById(R.id.take_photo_button);
+		this.takePhotoButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startTakeImageIntent();
+			}
+		});
+		this.importPhotoButton = (ImageButton) rootView.findViewById(R.id.import_photo_button);
+		this.importPhotoButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startImportImageIntent();
+			}
+		});
+		
 		this.saveButton = (Button) rootView.findViewById(R.id.save_button);
 		this.saveButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -203,9 +197,34 @@ public class DiaryEditEntryFragment extends Fragment {
 				}
 			}
 		});
+		this.deleteButton = (Button) rootView.findViewById(R.id.delete_button);
+		if (this.place != null) {
+			this.deleteButton.setVisibility(View.VISIBLE);
+			this.deleteButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					deletePlace(place);
+				}
+			});
+		}
 		return (rootView);
 	}
 
+	private void startImportImageIntent() {
+		Intent intent = new Intent();
+		intent.setType("image/*");
+		intent.setAction(Intent.ACTION_GET_CONTENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		startActivityForResult(intent, REQUEST_IMAGE_IMPORT);
+	}
+	
+	private void startTakeImageIntent() {
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+			startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+		}
+	}
+	
 	private void loadPicture() {
 		MyDatabaseHelper myDbHelper = new MyDatabaseHelper(this.getActivity());
 		List<Picture> pictures = myDbHelper.getPicturesByPlaceId(this.place.get_id());
@@ -266,13 +285,22 @@ public class DiaryEditEntryFragment extends Fragment {
 	}
 
 	private void savePictures(List<Picture> pictures, int placeId) {
-		Log.e("DiaryEditEntryFragment.java", "savePictures()");
 		MyDatabaseHelper myDbHelper = new MyDatabaseHelper(this.getActivity());
 		for (Picture p : pictures) {
-			Log.w("DiaryEditEntryFragment.java", "savePictures() : " + p.getPath());
 			p.setPlaceId(placeId);
 			myDbHelper.addPicture(p);
 		}
 	}
 
+	private void deletePlace(Place place) {
+		MyDatabaseHelper myDbHelper = new MyDatabaseHelper(this.getActivity());
+		List<Picture> pictures = myDbHelper.getPicturesByPlaceId(place.get_id());
+		for (Picture p : pictures) {
+			myDbHelper.deletePicture(p);
+		}
+		myDbHelper.deletePlace(place);
+		if (this.listener != null) {
+			this.listener.onEntryDeleted();
+		}
+	}
 }

@@ -2,6 +2,7 @@ package dev.mobile.traveldiary.adapters;
 
 import java.util.List;
 
+import dev.mobile.traveldiary.R;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -48,6 +49,7 @@ public class ImageGalleryAdapter extends BaseAdapter {
 			imageView.setLayoutParams(new GridView.LayoutParams(210, 280));
 			imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 			imageView.setPadding(5, 5, 5, 5);
+			imageView.setBackground(this.context.getResources().getDrawable(R.drawable.cadre));
 		} else {
 			imageView = (ImageView) convertView;
 		}
@@ -55,5 +57,4 @@ public class ImageGalleryAdapter extends BaseAdapter {
 		imageView.setImageBitmap(this.bitmaps.get(position));
 		return (imageView);
 	}
-
 }

@@ -28,7 +28,6 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +58,6 @@ LocationListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.w("MyMapFragment.java", "onCreate()");
 		this.locationRequest = LocationRequest.create();
 		this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		this.clientLocation = new LocationClient(this.getActivity().getApplicationContext(), this, this);
@@ -69,20 +67,17 @@ LocationListener {
 	@Override
 	public View onCreateView(LayoutInflater mInflater, ViewGroup viewGroup,
 			Bundle savedInstanceState) {
-		Log.w("MyMapFragment.java", "onCreateView()");
 		return super.onCreateView(mInflater, viewGroup, savedInstanceState);
 	}
 
 
 	@Override
 	public void onInflate(Activity activity, AttributeSet attr, Bundle savedInstanceState) {
-		Log.w("MyMapFragment.java", "onInflate()");
 		super.onInflate(activity, attr, savedInstanceState);
 	}
 
 	@Override
 	public void onResume() {
-		Log.w("MyMapFragment.java", "onResume()");
 		super.onResume();
 	}
 
@@ -91,7 +86,6 @@ LocationListener {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		MapsInitializer.initialize(this.getActivity());
-		Log.w("MyMapFragment.java", "onActivityCreated()");
 		this.googleMap = getMap();
 		this.googleMap.setMyLocationEnabled(true);
 		this.googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
@@ -116,7 +110,6 @@ LocationListener {
 
 	public void setUserMarkers() {
 		this.googleMap.clear();
-		Log.w("MyMapFragment.java", "setUserMarkers()");
 		MyDatabaseHelper dbHelper = new MyDatabaseHelper(this.getActivity());
 		List<Place> places = dbHelper.getAllPlaces();
 		for (Place place : places) {
@@ -156,7 +149,7 @@ LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-				new LatLng(location.getLatitude(), location.getLongitude()), 15);
+				new LatLng(location.getLatitude(), location.getLongitude()), 14);
 		this.googleMap.animateCamera(cameraUpdate);
 	}
 

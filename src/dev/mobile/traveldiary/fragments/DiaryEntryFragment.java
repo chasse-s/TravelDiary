@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -72,7 +73,7 @@ public class DiaryEntryFragment extends Fragment {
 				}
 			}
 		});
-		((ImageButton)rootView.findViewById(R.id.edit_button)).setOnClickListener(new OnClickListener() {
+		((Button)rootView.findViewById(R.id.edit_button)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (listener != null) {

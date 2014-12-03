@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/yellow"
     android:clickable="true"
     android:paddingBottom="15dp" >
 
@@ -27,22 +27,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/map"
-        android:layout_margin="20dp"
+        android:layout_margin="15dp"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/place_name"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            android:orientation="vertical" >
 
-        <FrameLayout
-            android:layout_width="150dp"
-            android:layout_height="2dp"
-            android:layout_marginBottom="10dp"
-            android:background="@color/black" >
-        </FrameLayout>
+            <TextView
+                android:id="@+id/place_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="100dp"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/black" >
+            </FrameLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/place_desc"
@@ -55,6 +62,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="16sp"
             android:text="@string/gallery" />
 
         <FrameLayout
@@ -91,23 +99,26 @@
             <ImageButton
                 android:id="@+id/open_gallery_button"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:scaleType="centerInside"
+                android:background="@null"
+                android:scaleType="fitCenter"
                 android:src="@drawable/plus" />
         </LinearLayout>
     </LinearLayout>
 
-    <ImageButton
+    <Button
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:textSize="14sp"
         android:layout_below="@id/linear_content"
+        android:background="@drawable/green_button"
+        android:textColor="@color/white"
         android:layout_marginRight="15dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/pencil2" />
+        android:text="@string/edit" />
 
 </RelativeLayout>

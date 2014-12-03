@@ -8,24 +8,21 @@
     android:orientation="vertical" >
 
     <TextView
+        android:background="@drawable/diary_head_bg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
+        android:gravity="center_horizontal"
+        android:paddingTop="20dp"
         android:text="@string/my_diary"
         android:textSize="20sp" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/bgColor" >
-    </FrameLayout>
 
     <ListView
         android:id="@+id/diary_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:divider="@null"
+        android:dividerHeight="0dp"
         android:focusableInTouchMode="true" />
 
 </LinearLayout>

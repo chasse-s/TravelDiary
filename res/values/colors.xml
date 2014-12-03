@@ -5,5 +5,10 @@
     <item name="black" type="color">#000000</item>
     <item name="bgColor" type="color">#D9DAEA</item>
     <item name="light_grey" type="color">#C4C4C4</item>
+    <item name="red" type="color">#dc8585</item>
+    <item name="dark_red" type="color">#d67171</item>
+    <item name="green" type="color">#91de8a</item>
+    <item name="dark_green" type="color">#6cd362</item>
+    <item name="yellow" type="color">#fffee8</item>
 
 </resources>

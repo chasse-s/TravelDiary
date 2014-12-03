@@ -14,14 +14,14 @@ import android.widget.TextView;
 public class DiaryListAdapter extends BaseAdapter {
 
 	private Context context;
-	
+
 	private List<Place> places;
-	
+
 	public DiaryListAdapter(Context context, List<Place> places) {
 		this.context = context;
 		this.places = places;
 	}
-	
+
 	@Override
 	public int getCount() {
 		return (this.places.size());
@@ -45,9 +45,14 @@ public class DiaryListAdapter extends BaseAdapter {
 					(Context.LAYOUT_INFLATER_SERVICE);
 			convertView = inflater.inflate(R.layout.diary_list_item, null);
 		}
-		((TextView)convertView.findViewById(R.id.item_place_name)).setText(place.getName());
-		((TextView)convertView.findViewById(R.id.item_place_desc)).setText(place.getDescription());
+		((TextView)convertView.findViewById(R.id.item_place_name)).setText(this.context.getString(R.string.place_name) + " : " + place.getName());
+		((TextView)convertView.findViewById(R.id.item_place_desc)).setText(this.context.getString(R.string.place_description) + " : " + place.getDescription());
 		((TextView)convertView.findViewById(R.id.item_date)).setText(place.getDate());
+		if (position == this.places.size() - 1) {
+			convertView.setBackground(this.context.getResources().getDrawable(R.drawable.diary_foot));
+		} else {
+			convertView.setBackground(this.context.getResources().getDrawable(R.drawable.diary_item_bg));
+		}
 		return (convertView);
 	}
 

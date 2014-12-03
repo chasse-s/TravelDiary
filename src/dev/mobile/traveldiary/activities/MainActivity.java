@@ -1,5 +1,6 @@
 package dev.mobile.traveldiary.activities;
 
+
 import java.util.List;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -22,7 +23,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
@@ -41,6 +41,8 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 	 * Used to store the last screen title. For use in {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
+
+	private static final String FRAGMENT_MAP_TAG = "fragment_map_tag";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +74,24 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 	}
 
 	private void displayMap() {
-		MyMapFragment mapFragment = new MyMapFragment();
-		mapFragment.setListener(this);
-		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-		transaction.add(R.id.container, mapFragment, "MAP");
-		transaction.commit();
+		if (getMapFragment() == null) {
+			MyMapFragment mapFragment = new MyMapFragment();
+			mapFragment.setListener(this);
+			FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+			transaction.add(R.id.container, mapFragment, FRAGMENT_MAP_TAG);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		} else {
+			FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
+			List<Fragment> fragments = fragmentManager.getFragments();
+			int i = fragments.size() - 1;
+			while (i >= 0 && !(fragments.get(i) instanceof MyMapFragment)) {
+				if (fragments.get(i) != null) {
+					fragmentManager.popBackStack();
+				}
+				i--;
+			}
+		}
 	}
 
 	private void displayDiary() {
@@ -84,6 +99,7 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 		diaryFragment.setListener(this);
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 		transaction.add(R.id.container, diaryFragment);
+		transaction.addToBackStack(null);
 		transaction.commit();
 	}
 
@@ -91,7 +107,6 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 		GalleryFragment galleryFragment = new GalleryFragment();
 		if (place != null) {
 			galleryFragment.setPlace(place);
-			
 		}
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 		transaction.add(R.id.container, galleryFragment);
@@ -105,6 +120,25 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 		entryFragment.setListener(this);
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 		transaction.add(R.id.container, entryFragment);
+		transaction.addToBackStack(null);
+		transaction.commit();
+	}
+
+	private void displayDiaryEditEntry(LatLng location, Place place) {
+		if (place != null) {
+			location = new LatLng(place.getLatitude(), place.getLongitude());
+		}
+		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		DiaryEditEntryFragment editEntryFragment = DiaryEditEntryFragment.newInstance(location);
+		editEntryFragment.setListener(this);
+		if (place != null) {
+			editEntryFragment.setPlace(place);
+			transaction.setCustomAnimations(R.anim.slide_left,
+					R.anim.slide_right,
+					R.anim.slide_left,
+					R.anim.slide_right);
+		}
+		transaction.add(R.id.container, editEntryFragment);
 		transaction.addToBackStack(null);
 		transaction.commit();
 	}
@@ -156,12 +190,7 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 
 	@Override
 	public void onNewPlace(LatLng location) {
-		DiaryEditEntryFragment editEntryFragment = DiaryEditEntryFragment.newInstance(location);
-		editEntryFragment.setListener(this);
-		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-		transaction.add(R.id.container, editEntryFragment);
-		transaction.addToBackStack(null);
-		transaction.commit();
+		displayDiaryEditEntry(location, null);
 	}
 
 	@Override
@@ -195,31 +224,28 @@ DiaryEditEntryFragmentListener, DiaryEntryFragmentListener {
 	}
 
 	private Fragment getMapFragment() {
-		FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
-		List<Fragment> fragments = fragmentManager.getFragments();
-		for (Fragment fragment : fragments){
-			if(fragment != null && fragment instanceof MyMapFragment)
-				return fragment;
-		}
-		return null;
+		return (getSupportFragmentManager().findFragmentByTag(FRAGMENT_MAP_TAG));
 	}
 
 	@Override
 	public void onEntryEditButtonClicked(Place place) {
 		LatLng loc = new LatLng(place.getLatitude(), place.getLongitude());
-		DiaryEditEntryFragment editEntryFragment = DiaryEditEntryFragment.newInstance(loc);
-		editEntryFragment.setListener(this);
-		editEntryFragment.setPlace(place);
-		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-		transaction.add(R.id.container, editEntryFragment);
-		transaction.addToBackStack(null);
-		transaction.commit();
+		displayDiaryEditEntry(loc, place);
 	}
 
 	@Override
 	public void onGalleryButtonClicked(Place place) {
-		Log.w("MainActivity.java", "onGalleryButtonClicked()");
 		displayGallery(place);
+	}
+
+	@Override
+	public void onEntryDeleted() {
+		Fragment myMapFragment = getMapFragment();
+		if (myMapFragment != null) {
+			((MyMapFragment) myMapFragment).setUserMarkers();
+		}
+		getSupportFragmentManager().popBackStack();
+		getSupportFragmentManager().popBackStack();
 	}
 
 }
